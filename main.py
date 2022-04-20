@@ -33,7 +33,7 @@ for org in orgs:
         try:
             devices = dashboard.networks.getNetworkDevices(network["id"])
             for device in devices:
-                if device['model'].startswith('MS'):
+                if device['model'].startswith('MS') or device['model'].startswith('MR'):
                     temp = {}
                     if 'name' in device:
                         temp['Hostname'] = device['name']
@@ -43,10 +43,18 @@ for org in orgs:
                     temp['Device Model'] = device['model']
                     temp['Current Version'] = device['firmware']
                     temp['Default Version'] = 'N/A'
+                    
+                    if device['model'].startswith('MS'):
+                        for index,firmware in enumerate(firmwares['products']['switch']['availableVersions']):
+                            if firmware['releaseType'] == 'stable':
+                                if index == 0:
+                                    temp['Default Version'] = firmware['firmware']
 
-                    for firmware in firmwares['products']['switch']['availableVersions']:
-                        if firmware['releaseType'] == 'stable':
-                            temp['Default Version'] = firmware['firmware']
+                    if device['model'].startswith('MR'):
+                        for index,firmware in enumerate(firmwares['products']['wireless']['availableVersions']):
+                            if firmware['releaseType'] == 'stable':
+                                if index == 0:
+                                    temp['Default Version'] = firmware['firmware']
 
                 tocsv.append(temp)
         except Exception as e: 
